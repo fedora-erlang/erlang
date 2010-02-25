@@ -60,7 +60,7 @@ OBJS = $(OBJDIR)/crypto_drv.o
 # ----------------------------------------------------
 
 $(SO_DRIVER): $(OBJS)
-	$(SO_LD) $(SO_LDFLAGS) -L$(SO_SSL_LIBDIR) -Wl,-R$(SO_SSL_LIBDIR) \
+	$(SO_LD) $(SO_LDFLAGS) -L$(SO_SSL_LIBDIR) \
 	-o $@ $^ -lcrypto
 
 $(DLL_DRIVER): $(OBJS)
