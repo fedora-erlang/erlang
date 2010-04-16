@@ -81,7 +81,7 @@ int initOpenGL()
   WCHAR * DLName = wxT("opengl32.dll");
   HMODULE LIBhandle = LoadLibrary(DLName);
 #else 
-  char * DLName = (char *) "libGL.so";
+  char * DLName = (char *) "libGL.so.1";
   void * LIBhandle = dlopen(DLName, RTLD_LAZY);
 #endif
   // fprintf(stderr, "Loading GL: %s\r\n", (const char*)DLName);
@@ -132,7 +132,7 @@ int initOpenGL()
   DLName = wxT("glu32.dll");
   LIBhandle = LoadLibrary(DLName);
 #else 
-  DLName = (char *) "libGLU.so";
+  DLName = (char *) "libGLU.so.1";
   LIBhandle = dlopen(DLName, RTLD_LAZY);
 #endif
   // fprintf(stderr, "Loading GL: %s\r\n", (const char*)DLName);
