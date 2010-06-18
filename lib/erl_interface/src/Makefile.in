@@ -690,13 +690,11 @@ release: opt
 	$(INSTALL_DATA) $(OBJ_TARGETS) "$(RELEASE_PATH)/usr/lib"
 	$(INSTALL_PROGRAM) $(EXE_TARGETS) "$(RELSYSDIR)/bin"
 	$(INSTALL_DATA) $(EXTRA)        "$(RELSYSDIR)/src"
-	$(INSTALL_DATA) connect/*.[ch]  "$(RELSYSDIR)/src/connect"
-	$(INSTALL_DATA) decode/*.[ch]   "$(RELSYSDIR)/src/decode"
-	$(INSTALL_DATA) encode/*.[ch]   "$(RELSYSDIR)/src/encode"
-	$(INSTALL_DATA) epmd/*.[ch]     "$(RELSYSDIR)/src/epmd"
-	$(INSTALL_DATA) misc/*.[ch]     "$(RELSYSDIR)/src/misc"
-	$(INSTALL_DATA) global/*.[ch]   "$(RELSYSDIR)/src/global"
-	$(INSTALL_DATA) prog/*.[ch]     "$(RELSYSDIR)/src/prog"
+	$(INSTALL_DATA) connect/*.h  "$(RELSYSDIR)/src/connect"
+	$(INSTALL_DATA) decode/*.h   "$(RELSYSDIR)/src/decode"
+	$(INSTALL_DATA) encode/*.h   "$(RELSYSDIR)/src/encode"
+	$(INSTALL_DATA) epmd/*.h     "$(RELSYSDIR)/src/epmd"
+	$(INSTALL_DATA) misc/*.h     "$(RELSYSDIR)/src/misc"
 
 release_docs:
 
