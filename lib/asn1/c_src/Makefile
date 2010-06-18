@@ -143,8 +143,6 @@ release_spec: opt
 ifneq ($(findstring ose,$(TARGET)),ose)
 	$(INSTALL_PROGRAM) $(NIF_SHARED_OBJ_FILE) "$(RELSYSDIR)/priv/lib"
 endif
-	$(INSTALL_DIR) "$(RELSYSDIR)/c_src"
-	$(INSTALL_DATA) *.c "$(RELSYSDIR)/c_src"
 
 release_docs_spec:
 

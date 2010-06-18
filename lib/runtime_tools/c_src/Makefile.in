@@ -157,10 +157,8 @@ docs:
 include $(ERL_TOP)/make/otp_release_targets.mk
 
 release_spec: opt
-	$(INSTALL_DIR) "$(RELSYSDIR)/priv/obj"
 	$(INSTALL_DIR) "$(RELSYSDIR)/priv/lib"
 ifneq ($(findstring ose,$(TARGET)),ose)
-	$(INSTALL_PROGRAM) $(DYNTRACE_OBJS) "$(RELSYSDIR)/priv/obj"
 	$(INSTALL_PROGRAM) $(NIF_LIB) $(SOLIBS) "$(RELSYSDIR)/priv/lib"
 endif
 
