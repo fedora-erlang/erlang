@@ -55,7 +55,6 @@ XML_REF3_EFILES = \
 XML_REF3_FILES = \
 	driver_entry.xml \
 	erl_nif.xml \
-	erl_set_memory_block.xml \
 	erl_driver.xml \
 	erl_prim_loader.xml \
 	erlang.xml \
