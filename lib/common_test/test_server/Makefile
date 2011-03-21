@@ -86,9 +86,9 @@ include $(ERL_TOP)/make/otp_release_targets.mk
 
 release_tests_spec: opt
 	$(INSTALL_DIR) "$(RELEASE_PATH)/test_server"
-	$(INSTALL_DATA) $(TS_ERL_FILES) $(TS_HRL_FILES) \
+	$(INSTALL_DATA) $(TS_HRL_FILES) \
 		$(TS_TARGET_FILES) \
-		$(AUTOCONF_FILES) $(CONFIG) \
+		$(CONFIG) \
 		"$(RELEASE_PATH)/test_server"
 	$(INSTALL_SCRIPT) $(PROGRAMS) "$(RELEASE_PATH)/test_server"
 
