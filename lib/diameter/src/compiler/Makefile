@@ -117,7 +117,7 @@ release_spec: opt
 	$(INSTALL_DATA) $(TARGET_FILES) $(RELSYSDIR)/ebin
 	$(INSTALL_DIR)  $(RELSYSDIR)/src
 	$(INSTALL_DIR)  $(RELSYSDIR)/src/compiler
-	$(INSTALL_DATA) $(ERL_FILES) $(HRL_FILES) $(RELSYSDIR)/src/compiler
+	$(INSTALL_DATA) $(HRL_FILES) $(RELSYSDIR)/src/compiler
 
 release_docs_spec:
 

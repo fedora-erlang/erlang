@@ -116,8 +116,6 @@ endif
 release_spec: opt
 	$(INSTALL_DIR)  $(RELSYSDIR)/ebin
 	$(INSTALL_DATA) $(TARGET_FILES) $(RELSYSDIR)/ebin
-	$(INSTALL_DIR)  $(RELSYSDIR)/src/transport
-	$(INSTALL_DATA) $(ERL_FILES) $(HRL_FILES) $(RELSYSDIR)/src/transport
 
 release_docs_spec:
 
