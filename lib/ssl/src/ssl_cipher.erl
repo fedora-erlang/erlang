@@ -212,7 +212,7 @@ decipher(?RC4, HashSz, CipherState = #cipher_state{state = State0}, Fragment, _,
 	    %% alerts may permit certain attacks against CBC mode as used in
 	    %% TLS [CBCATT].  It is preferable to uniformly use the
 	    %% bad_record_mac alert to hide the specific type of the error."
-	    ?ALERT_REC(?FATAL, ?BAD_RECORD_MAC)
+            ?ALERT_REC(?FATAL, ?BAD_RECORD_MAC, decryption_failed)
     end;
 
 decipher(?DES, HashSz, CipherState, Fragment, Version, PaddingCheck) ->
@@ -270,7 +270,7 @@ block_decipher(Fun, #cipher_state{key=Key, iv=IV} = CipherState0,
 	    %% alerts may permit certain attacks against CBC mode as used in
 	    %% TLS [CBCATT].  It is preferable to uniformly use the
 	    %% bad_record_mac alert to hide the specific type of the error."
-	    ?ALERT_REC(?FATAL, ?BAD_RECORD_MAC)
+            ?ALERT_REC(?FATAL, ?BAD_RECORD_MAC, decryption_failed)
     end.
 
 aead_ciphertext_to_state(chacha20_poly1305, SeqNo, _IV, AAD0, Fragment, _Version) ->
@@ -294,11 +294,11 @@ aead_decipher(Type, #cipher_state{key = Key, iv = IV} = CipherState,
 	    Content when is_binary(Content) ->
 		{Content, CipherState};
 	    _ ->
-		?ALERT_REC(?FATAL, ?BAD_RECORD_MAC)
+                ?ALERT_REC(?FATAL, ?BAD_RECORD_MAC, decryption_failed)
 	end
     catch
 	_:_ ->
-	    ?ALERT_REC(?FATAL, ?BAD_RECORD_MAC)
+            ?ALERT_REC(?FATAL, ?BAD_RECORD_MAC, decryption_failed)
     end.
 
 %%--------------------------------------------------------------------
