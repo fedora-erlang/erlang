@@ -73,7 +73,7 @@ gen_listen(Driver, Name) ->
 	{ok, Socket} ->
 	    TcpAddress = get_tcp_address(Driver, Socket),
 	    {_,Port} = TcpAddress#net_address.address,
-	    case erl_epmd:register_node(Name, Port) of
+	    case erl_epmd:register_node(Name, Port, Driver) of
 		{ok, Creation} ->
 		    {ok, {Socket, TcpAddress, Creation}};
 		Error ->
