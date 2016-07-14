@@ -107,6 +107,10 @@ names1(HostName) ->
 
 register_node(Name, PortNo) ->
     register_node(Name, PortNo, inet).
+register_node(Name, PortNo, inet_tcp) ->
+    register_node(Name, PortNo, inet);
+register_node(Name, PortNo, inet6_tcp) ->
+    register_node(Name, PortNo, inet6);
 register_node(Name, PortNo, Family) ->
     gen_server:call(erl_epmd, {register, Name, PortNo, Family}, infinity).
 
