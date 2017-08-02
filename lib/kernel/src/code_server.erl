@@ -90,11 +90,17 @@ init(Ref, Parent, [Root,Mode]) ->
     IPath =
 	case Mode of
 	    interactive ->
-		LibDir = filename:append(Root, "lib"),
-		{ok,Dirs} = erl_prim_loader:list_dir(LibDir),
-		Paths = make_path(LibDir, Dirs),
+		F = fun(R) ->
+			LD = filename:append(R, "lib"),
+			case erl_prim_loader:list_dir(LD) of
+				    error -> [];
+				    {ok, D} -> make_path(LD, D)
+			end
+		    end,
+		Paths = F(Root),
+		SharedPaths = F("/usr/share/erlang"),
 		UserLibPaths = get_user_lib_dirs(),
-		["."] ++ UserLibPaths ++ Paths;
+		["."] ++ UserLibPaths ++ Paths ++ SharedPaths;
 	    _ ->
 		[]
 	end,
