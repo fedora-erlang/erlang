@@ -26,7 +26,7 @@ else
 fi
 BINDIR=$ROOTDIR/erts-%VSN%/bin
 EMU=%EMULATOR%%EMULATOR_NUMBER%
-PROGNAME=`echo $0 | sed 's/.*\///'`
+PROGNAME=${0##*/}
 export EMU
 export ROOTDIR
 export BINDIR
