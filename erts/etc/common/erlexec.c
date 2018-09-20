@@ -758,8 +758,10 @@ int main(int argc, char **argv)
                                 break;
                             }
                         }
-			erts_snprintf(tmpStr, sizeof(tmpStr), "%s/man", rootdir);
-			set_env("MANPATH", tmpStr);
+			/*
+			* Conform to erlang-manpages content.
+			*/
+			putenv(strsave("MANSECT=3erl:1:5:7"));
 			execvp("man", argv+i);
 			error("Could not execute the 'man' command.");
 #endif
