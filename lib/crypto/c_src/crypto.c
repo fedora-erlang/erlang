@@ -151,8 +151,7 @@
 #if OPENSSL_VERSION_NUMBER >= PACKED_OPENSSL_VERSION(0,9,8,'o') \
 	&& !defined(OPENSSL_NO_EC) \
 	&& !defined(OPENSSL_NO_ECDH) \
-	&& !defined(OPENSSL_NO_ECDSA) \
-	&& !defined(OPENSSL_NO_EC2M)
+	&& !defined(OPENSSL_NO_ECDSA)
 # define HAVE_EC
 #endif
 
