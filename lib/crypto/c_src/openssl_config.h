@@ -438,6 +438,10 @@ do {                                                    \
 # undef FIPS_SUPPORT
 #endif
 
+#if defined(FIPS_SUPPORT) \
+    && OPENSSL_VERSION_NUMBER  >= (PACKED_OPENSSL_VERSION_PLAIN(3,0,0) & ~0xff)
+#define FIPS_mode_set(fips_mode) EVP_default_properties_enable_fips(NULL, fips_mode)
+#endif
 
 /* This is not the final FIPS adaptation for 3.0, just making it compilable */
 #if OPENSSL_VERSION_NUMBER >= PACKED_OPENSSL_VERSION_PLAIN(3,0,0)
