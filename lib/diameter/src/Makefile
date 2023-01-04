@@ -266,8 +266,11 @@ release_spec: opt
 	$(MAKE) ERL_DETERMINISTIC=$(ERL_DETERMINISTIC) $(EXAMPLE_DIRS:%/=release_examples_%)
 
 $(TARGET_DIRS:%/=release_src_%): release_src_%:
-	$(INSTALL_DATA) $(filter $*/%, $(INTERNAL_HRLS)) \
-	                "$(RELSYSDIR)/src/$*" || true
+	$(INSTALL_DIR) "$(RELSYSDIR)/src/$*"
+	$(INSTALL_DATA) $(filter $*/%, $(TARGET_MODULES:%=%.erl) \
+	                               $(INTERNAL_HRLS)) \
+	                $(filter $*/%, compiler/$(DICT_YRL).yrl) \
+	                "$(RELSYSDIR)/src/$*"
 
 $(EXAMPLE_DIRS:%/=release_examples_%): release_examples_%:
 	$(INSTALL_DIR) "$(RELSYSDIR)/examples/$*"
