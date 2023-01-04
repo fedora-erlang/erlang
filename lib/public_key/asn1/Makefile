@@ -103,6 +103,8 @@ release_spec: opt
 	$(INSTALL_DIR) "$(RELSYSDIR)/asn1"
 	$(INSTALL_DATA) $(ASN_ASNS) $(ASN_CONFIGS) \
 		  "$(RELSYSDIR)/asn1"
+	$(INSTALL_DIR) "$(RELSYSDIR)/src"
+	$(INSTALL_DATA) $(ASN_ERLS) "$(RELSYSDIR)/src"
 	$(INSTALL_DIR) "$(RELSYSDIR)/ebin"
 	$(INSTALL_DATA) $(TARGET_FILES) "$(RELSYSDIR)/ebin"
 
