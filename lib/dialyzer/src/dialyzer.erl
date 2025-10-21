@@ -243,10 +243,9 @@ check_init(#options{check_plt = true} = OptsRecord) ->
 check_init(#options{check_plt = false}) ->
     ok.
 
-internal_gui(OptsRecord) ->
+internal_gui(_OptsRecord) ->
   F = fun() ->
-	  dialyzer_gui_wx:start(OptsRecord),
-	  ?RET_NOTHING_SUSPICIOUS
+	  {error, "GUI mode not implemented in command line mode"}
       end,
   doit(F).
 
@@ -266,7 +265,7 @@ gui(Opts) ->
       ok = check_gui_options(OptsRecord),
       ok = check_init(OptsRecord),
       F = fun() ->
-          dialyzer_gui_wx:start(OptsRecord)
+	  {error, "GUI mode not implemented in command line mode"}
       end,
       case doit(F) of
 	  {ok, _} -> ok;
