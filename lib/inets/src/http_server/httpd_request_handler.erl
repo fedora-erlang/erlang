@@ -213,7 +213,6 @@ handle_info({Proto, Socket, Data},
 	 (Proto =:= ssl) orelse 
 	 (Proto =:= dummy)) andalso is_binary(Data)) ->
 
-    PROCESSED = (catch Module:Function([Data | Args])),
     NewDataSize = case State#state.byte_limit of
 		      undefined ->
 			  undefined;
@@ -221,7 +220,7 @@ handle_info({Proto, Socket, Data},
 			  State#state.data + byte_size(Data)
 		  end,
 
-    case PROCESSED of       
+    try Module:Function([Data | Args]) of
         {ok, Result} ->
 	    NewState = case NewDataSize of
 			   undefined ->
@@ -239,14 +238,18 @@ handle_info({Proto, Socket, Data},
         {http_chunk = Module, Function, Args} when ChunkState =/= undefined ->
             NewState = handle_chunk(Module, Function, Args, State),
             {noreply, NewState};
-	NewMFA ->
-        setopts(Socket, SockType, [{active, once}]),
+        {_M, _F, _A} = NewMFA ->
+            setopts(Socket, SockType, [{active, once}]),
 	    case NewDataSize of
 		undefined ->
 		    {noreply, State#state{mfa = NewMFA}};
 		_ ->
 		    {noreply, State#state{mfa = NewMFA, data = NewDataSize}}
 	    end
+        catch throw:{error, Error} when Module =:= http_chunk ->
+                httpd_response:send_status(ModData, 400, 
+                                           "Bad input", {chunk_decoding, bad_input, Error}),
+                {stop, normal, State#state{response_sent = true}}
     end;
 
 %% Error cases
