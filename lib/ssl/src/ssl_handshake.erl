@@ -409,8 +409,6 @@ verify_signature({3, 4}, Hash, {HashAlgo, _SignAlgo}, Signature, {?'id-ecPublicK
 verify_signature(_, Hash, {HashAlgo, _SignAlg}, Signature,
 		 {?'id-ecPublicKey', PublicKey, PublicKeyParams}) ->
     public_key:verify({digest, Hash}, HashAlgo, Signature, {PublicKey, PublicKeyParams});
-verify_signature({3, Minor}, _Hash, {_HashAlgo, anon}, _Signature, _) when Minor =< 3 ->
-    true;
 verify_signature({3, Minor}, Hash, {HashAlgo, dsa}, Signature, {?'id-dsa', PublicKey, PublicKeyParams})  when Minor =< 3->
     public_key:verify({digest, Hash}, HashAlgo, Signature, {PublicKey, PublicKeyParams}).
 
@@ -2636,9 +2634,7 @@ dec_server_key_signature(Params, <<?BYTE(HashAlgo), ?BYTE(SignAlgo),
   when Major == 3, Minor >= 3 ->
     HashSign = {ssl_cipher:hash_algorithm(HashAlgo), ssl_cipher:sign_algorithm(SignAlgo)},
     {Params, HashSign, Signature};
-dec_server_key_signature(Params, <<>>, _) ->
-    {Params, {null, anon}, <<>>};
-dec_server_key_signature(Params, <<?UINT16(0)>>, _) ->
+dec_server_key_signature(Params, <<>>, {3, Minor}) when Minor =< 3 ->
     {Params, {null, anon}, <<>>};
 dec_server_key_signature(Params, <<?UINT16(Len), Signature:Len/binary>>, _) ->
     {Params, undefined, Signature};
