@@ -156,7 +156,9 @@ request(Url, Profile) ->
                         | {headers_as_is, boolean()}
                         | {socket_opts, [SocketOpt]}
                         | {receiver, Receiver}
-                        | {ipv6_host_with_brackets, boolean()},
+                        | {ipv6_host_with_brackets, boolean()}
+                        | {max_header_size, MaxSize}
+                        | {max_body_size, MaxSize},
       StreamTo :: none | self | {self, once} | file:name_all(),
       SocketOpt :: term(),
       BodyFormat  :: string | binary,
@@ -165,6 +167,7 @@ request(Url, Profile) ->
                   | { ReceiverModule::atom()
                     , ReceiverFunction::atom()
                     , ReceiverArgs::list()},
+      MaxSize :: non_neg_integer() | nolimit,
       Result :: { StatusLine , [HttpHeader], HttpBodyResult}
               | { StatusCode, HttpBodyResult}
               | RequestId
@@ -218,7 +221,9 @@ request(Method, Request, HttpOptions, Options) ->
                      | {headers_as_is, boolean()}
                      | {socket_opts, [SocketOpt]}
                      | {receiver, Receiver}
-                     | {ipv6_host_with_brackets, boolean()},
+                     | {ipv6_host_with_brackets, boolean()}
+                     | {max_header_size, MaxSize}
+                     | {max_body_size, MaxSize},
       StreamTo :: none | self | {self, once} | file:name_all(),
       BodyFormat  :: string | binary,
       SocketOpt :: term(),
@@ -227,6 +232,7 @@ request(Method, Request, HttpOptions, Options) ->
                   | { ReceiverModule::atom()
                     , ReceiverFunction::atom()
                     , ReceiverArgs::list()},
+      MaxSize :: non_neg_integer() | nolimit,
       Profile :: atom() | pid(),
       HttpVersion :: string(),
       Result :: {StatusLine
@@ -927,7 +933,9 @@ maybe_format_body(BinBody, Options) ->
                         | {headers_as_is, boolean()}
                         | {socket_opts, [SocketOpt]}
                         | {receiver, Receiver}
-                        | {ipv6_host_with_brackets, boolean()},
+                        | {ipv6_host_with_brackets, boolean()}
+                        | {max_header_size,         MaxSize}
+                        | {max_body_size,           MaxSize},
       BodyFormat  :: string | binary,
       StreamTo :: none | self | {self, once} | file:name_all(),
       SocketOpt :: term(),
@@ -935,7 +943,8 @@ maybe_format_body(BinBody, Options) ->
                   | fun((term()) -> term())
                   | { ReceiverModule::atom()
                     , ReceiverFunction::atom()
-                    , ReceiverArgs::list()}.
+                    , ReceiverArgs::list()},
+      MaxSize :: non_neg_integer() | nolimit.
 %% This options is a workaround for http servers that do not follow the 
 %% http standard and have case sensitive header parsing. Should only be
 %% used if there is no other way to communicate with the server or for
@@ -1120,16 +1129,26 @@ request_options_defaults() ->
 
     VerifyBrackets = VerifyBoolean,
 
+    VerifyIntegerNoLimit =
+        fun(nolimit) ->
+                ok;
+           (Value) when
+                  is_integer(Value), Value > 0 ->
+                ok
+        end,
+
     [
-     {sync,                    true,      VerifySync}, 
-     {stream,                  none,      VerifyStream},
-     {body_format,             string,    VerifyBodyFormat},
-     {full_result,             true,      VerifyFullResult},
-     {headers_as_is,           false,     VerifyHeaderAsIs},
-     {receiver,                alias(),    VerifyReceiver},
-     {socket_opts,             undefined, VerifySocketOpts},
-     {ipv6_host_with_brackets, false,     VerifyBrackets}
-    ]. 
+     {sync,                    true,                       VerifySync},
+     {stream,                  none,                       VerifyStream},
+     {body_format,             string,                     VerifyBodyFormat},
+     {full_result,             true,                       VerifyFullResult},
+     {headers_as_is,           false,                      VerifyHeaderAsIs},
+     {receiver,                alias(),                    VerifyReceiver},
+     {socket_opts,             undefined,                  VerifySocketOpts},
+     {ipv6_host_with_brackets, false,                      VerifyBrackets},
+     {max_header_size,         ?HTTP_MAX_HEADER_SIZE,      VerifyIntegerNoLimit},
+     {max_body_size,           ?HTTP_MAX_BODY_SIZE,        VerifyIntegerNoLimit}
+    ].
 
 request_options(Options) ->
     Defaults = request_options_defaults(), 
@@ -1175,7 +1194,9 @@ request_options([{Key, DefaultVal, Verify} | Defaults], Options, Acc) ->
                      | {headers_as_is, boolean()}
                      | {socket_opts, [SocketOpt]}
                      | {receiver, Receiver}
-                     | {ipv6_host_with_brackets, boolean()},
+                     | {ipv6_host_with_brackets, boolean()}
+                     | {max_header_size, MaxSize}
+                     | {max_body_size, MaxSize},
       StreamTo :: none | self | {self, once} | file:name_all(),
       BodyFormat  :: string | binary,
       SocketOpt :: term(),
@@ -1184,7 +1205,8 @@ request_options([{Key, DefaultVal, Verify} | Defaults], Options, Acc) ->
                   | fun((term()) -> term())
                   | { ReceiverModule::atom()
                     , ReceiverFunction::atom()
-                    , ReceiverArgs::list()}.
+                    , ReceiverArgs::list()},
+      MaxSize :: non_neg_integer() | nolimit.
 request_options_sanity_check(Opts) ->
     case proplists:get_value(sync, Opts) of
 	Sync when (Sync =:= true) ->
