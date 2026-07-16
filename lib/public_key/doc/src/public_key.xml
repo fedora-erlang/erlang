@@ -647,6 +647,11 @@ fun(OtpCert :: #'OTPCertificate'{},
   <tag>invalid_validity_dates</tag>
   <item><p>The validity section of the X.509 certificate(s) contains invalid date formats not matching the RFC.</p></item>
 
+  <tag>policy_tree_exceeded</tag>
+  <item><p>The certificate chain's policy tree exceeded the maximum allowed node count.
+  This indicates a malformed or malicious chain with exponentially expanding policy mappings.
+  This error cannot be overridden by the <c>verify_fun</c>.</p></item>
+
 	<tag>atom()</tag>
 	<item><p>Application-specific error reason that is to be checked by the <c>verify_fun</c>.</p></item>
       </taglist>
