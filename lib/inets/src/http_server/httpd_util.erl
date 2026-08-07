@@ -31,7 +31,7 @@
 	 convert_netscapecookie_date/1, enable_debug/1, valid_options/3,
 	 modules_validate/1, module_validate/1, 
 	 dir_validate/2, file_validate/2, mime_type_validate/1, 
-	 mime_types_validate/1, custom_date/0, error_log/2]).
+	 mime_types_validate/1, custom_date/0, error_log/2, collapse_slashes/1]).
 
 -compile({nowarn_deprecated_function, [{http_uri, encode, 1}]}).
 -compile({nowarn_deprecated_function, [{http_uri, decode, 1}]}).
@@ -752,3 +752,22 @@ mod_error_logging(Mod, ConfigDB, Report) ->
 	_ ->
 	    ok
     end.
+
+%%----------------------------------------------------------------------
+%% collapse_slashes(Path) -> Path
+%%
+%% Collapse consecutive slash characters into a single slash.
+%% This ensures the authorization decision (mod_auth, mod_security)
+%% and the file-serving layer (mod_get) see the same canonical path.
+%% Without this, "//secret/file" bypasses mod_auth's re:run directory
+%% check while the OS still serves the file (treating // as /).
+%%----------------------------------------------------------------------
+collapse_slashes(Path) ->
+    collapse_slashes(Path, []).
+
+collapse_slashes([], Acc) ->
+    lists:reverse(Acc);
+collapse_slashes([$/,$/ | Rest], Acc) ->
+    collapse_slashes([$/ | Rest], Acc);
+collapse_slashes([C | Rest], Acc) ->
+    collapse_slashes(Rest, [C | Acc]).
