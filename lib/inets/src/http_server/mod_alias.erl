@@ -218,7 +218,7 @@ percent_decode_path(InitPath) ->
                 {error, _, _} ->
                     InitPath;
                 Path ->
-                    Path
+                    httpd_util:collapse_slashes(Path)
             end
     end.
 %%
