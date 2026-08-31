@@ -67,7 +67,7 @@
 	 terminate/2, code_change/3]).
 
 %% Internal application API
--export([cache_create/0, cache_lookup/2, cache_update/2, 
+-export([cache_create/0, cache_lookup/2, cache_insert/3, cache_update/2,
 	 cache_delete/1, cache_delete/2,  cache_foldl/3,
 	 cache_info/2,  cache_find/2,
 	 get_print_info/1, get_print_info/2
@@ -343,6 +343,20 @@ cache_lookup(Cache, Key) ->
 	    undefined
     end.
 
+cache_insert(Cache, #channel{local_id = Id} = Entry, infinity) when Id =/= undefined ->
+    true = ets:insert_new(Cache, Entry),
+    ok;
+cache_insert(Cache, #channel{local_id = Id} = Entry, Limit) when Id =/= undefined,
+                                                                 is_integer(Limit),
+                                                                 Limit > 0 ->
+    case cache_info(num_entries, Cache) of
+        Num when Num >= Limit ->
+            {error, max_num_channels_exceeded};
+        _Num ->
+            true = ets:insert_new(Cache, Entry),
+            ok
+    end.
+
 cache_update(Cache, #channel{local_id = Id} = Entry) when Id =/= undefined ->
     ets:insert(Cache, Entry).
 
@@ -356,7 +370,7 @@ cache_foldl(Fun, Acc, Cache) ->
     ets:foldl(Fun, Acc, Cache).
     
 cache_info(num_entries, Cache) ->
-    proplists:get_value(size, ets:info(Cache)).
+    ets:info(Cache, size).
 
 cache_find(ChannelPid, Cache) ->
    case ets:match_object(Cache, #channel{user = ChannelPid}) of
