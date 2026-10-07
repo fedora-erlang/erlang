@@ -70,7 +70,7 @@
 
 %% Cipher suites handling
 -export([available_suites/2, available_signature_algs/2,  available_signature_algs/3,
-         cipher_suites/3, select_session/9,
+         cipher_suites/3, select_session/10,
          premaster_secret/2, premaster_secret/3, premaster_secret/4]).
 
 %% Extensions handling
@@ -1067,10 +1067,12 @@ cipher_suites(Suites, false) ->
 cipher_suites(Suites, true) ->
     Suites.
 
-select_session(SuggestedSessionId, CipherSuites, HashSigns, Compressions, SessIdTracker, Session0, Version, SslOpts, CertKeyAlts) ->
+select_session(SuggestedSessionId, CipherSuites, HashSigns, Compressions, HelloExt,
+               SessIdTracker, Session0, Version, SslOpts, CertKeyAlts) ->
     CertKeyPairs = ssl_certificate:available_cert_key_pairs(CertKeyAlts, Version),
-    {SessionId, Resumed} = ssl_session:server_select_session(Version, SessIdTracker, SuggestedSessionId,
-                                                             SslOpts, CertKeyPairs),
+    {SessionId, Resumed} =
+        ssl_session:server_select_session(Version, SessIdTracker, SuggestedSessionId,
+                                          HelloExt, SslOpts, CertKeyPairs),
     case Resumed of
         undefined ->
             %% Select Cert

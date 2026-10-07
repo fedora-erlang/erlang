@@ -597,6 +597,7 @@ cipher(internal, #finished{verify_data = Data} = Finished,
                                        port = Port,
                                        trackers = Trackers},
               handshake_env = #handshake_env{tls_handshake_history = Hist,
+                                             sni_hostname = SNIHostname,
                                              expecting_finished = true} = HsEnv,
               connection_env = #connection_env{negotiated_version = Version},
 	      session = #session{master_secret = MasterSecret}
@@ -608,7 +609,8 @@ cipher(internal, #finished{verify_data = Data} = Finished,
 					 get_current_prf(ConnectionStates0, read),
 					 MasterSecret, Hist) of
         verified ->
-	    Session = handle_session(Role, SslOpts, Host, Port, Trackers, Session0),
+	    Session = maybe_register_session(Role, SslOpts, SNIHostname, Host, Port,
+                                             Trackers, Session0),
 	    cipher_role(Role, Data, Session,
 			State#state{handshake_env = HsEnv#handshake_env{expecting_finished = false}});
         #alert{} = Alert ->
@@ -1578,16 +1580,17 @@ session_handle_params(#server_ecdh_params{curve = ECCurve}, Session) ->
 session_handle_params(_, Session) ->
     Session.
 
-handle_session(server, #{reuse_sessions := true}, 
+maybe_register_session(server, #{reuse_sessions := true}, SNIHostname,
                _Host, _Port, Trackers, #session{is_resumable = false} = Session) ->
     Tracker = proplists:get_value(session_id_tracker, Trackers),
-    server_register_session(Tracker, Session#session{is_resumable = true});
-handle_session(Role = client, #{verify := verify_peer,
-                                reuse_sessions := Reuse} = SslOpts,
+    server_register_session(Tracker, Session#session{is_resumable = true,
+                                                     sni = SNIHostname});
+maybe_register_session(Role = client, #{verify := verify_peer,
+                                reuse_sessions := Reuse} = SslOpts, _SNIHostname,
                Host, Port, _, #session{is_resumable = false} = Session) when Reuse =/= false ->
     client_register_session(host_id(Role, Host, SslOpts), Port, Session#session{is_resumable = true}, 
                             reg_type(Reuse));
-handle_session(_,_,_,_,_, Session) ->
+maybe_register_session(_,_,_,_,_,_, Session) ->
     Session.
 
 reg_type(save) ->
