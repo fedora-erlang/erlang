@@ -3060,13 +3060,14 @@ decode_extensions(<<?UINT16(?STATUS_REQUEST), ?UINT16(Len),
     end;
 
 decode_extensions(<<?UINT16(?EARLY_DATA_EXT), ?UINT16(0), Rest/binary>>,
-                  Version, MessageType, Acc) ->
+                  Version, MessageType, Acc)
+  when MessageType == client_hello; MessageType == encrypted_extensions ->
     decode_extensions(Rest, Version, MessageType,
                       Acc#{early_data => #early_data_indication{}});
 
 decode_extensions(<<?UINT16(?EARLY_DATA_EXT), ?UINT16(4), ?UINT32(MaxSize),
                     Rest/binary>>,
-                  Version, MessageType, Acc) ->
+                  Version, new_session_ticket = MessageType, Acc) ->
     decode_extensions(Rest, Version, MessageType,
                       Acc#{early_data =>
                                #early_data_indication_nst{indication = MaxSize}});
