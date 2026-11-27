@@ -25,6 +25,7 @@
 
 -include("httpd.hrl").
 -include("httpd_internal.hrl").
+-include("http_internal.hrl").
 
 %%%=========================================================================
 %%%  Internal application API 
@@ -130,8 +131,38 @@ create_http_header_elements(ScriptType, [{Name, Value} | Headers], Acc)
 
 http_env_element(cgi, VarName, Value)  ->
     {"HTTP_"++ http_util:to_upper(VarName), Value};
-http_env_element(esi, VarName, Value)  ->
-    {list_to_atom("http_"++ http_util:to_lower(VarName)), Value}.
+http_env_element(esi, VarName0, Value)  ->
+    %% CVE-2026-116382: the ESI env key must not be built with list_to_atom/1
+    %% on a request-controlled header name. Atoms are never reclaimed, so a
+    %% stream of distinct header names to an erl_script_alias endpoint would
+    %% grow the atom table without bound and eventually abort the VM. Pick the
+    %% key from the fixed set of standard request-header atoms instead; any
+    %% header outside that set maps to the pre-existing http_other atom, so no
+    %% request can ever create a new atom.
+    VarName = re:replace(VarName0, "-", "_", [{return, list}, global]),
+    {esi_header_atom("http_" ++ http_util:to_lower(VarName)), Value}.
+
+esi_header_atom(Prefixed) ->
+    esi_header_atom(Prefixed, esi_header_atoms()).
+
+esi_header_atom(Prefixed, [Atom | Atoms]) ->
+    case atom_to_list(Atom) of
+        Prefixed ->
+            Atom;
+        _ ->
+            esi_header_atom(Prefixed, Atoms)
+    end;
+esi_header_atom(_Prefixed, []) ->
+    http_other.
+
+%% The standard request-header env keys, derived once from the fields of the
+%% http_request_h record. 'other' is excluded: it is the record's catch-all
+%% field, and http_other is already the key for headers that get no atom of
+%% their own, so mapping it here would shadow that key.
+esi_header_atoms() ->
+    [ list_to_atom("http_" ++ re:replace(atom_to_list(Field), "-", "_",
+                                         [{return, list}, global]))
+      || Field <- record_info(fields, http_request_h), Field =/= other ].
 
 multi_value([]) ->
   [];
